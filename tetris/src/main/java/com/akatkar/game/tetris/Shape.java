@@ -5,9 +5,9 @@ import java.util.Arrays;
 
 class Shape {
 
-    private Board board;
-    private Piece piece;
-    private PieceSquare[] squares;
+    private final Board board;
+    private final Piece piece;
+    private final PieceSquare[] squares;
     private int curX;
     private int curY;
 

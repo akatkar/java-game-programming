@@ -3,8 +3,8 @@ package com.akatkar.game.tetris;
 import java.awt.*;
 
 class Board {
-    private Square[][] boardGrid;
-    private BoardPanel parent;
+    private final Square[][] boardGrid;
+    private final BoardPanel parent;
 
     public Board(BoardPanel parent, int width, int height) {
         this.parent = parent;
@@ -72,10 +72,7 @@ class Board {
         if (x < 0 || x >= boardGrid[0].length || y < 0 || y >= boardGrid.length) {
             return false;
         }
-        if (!boardGrid[y][x].isEmpty()) {
-            return false;
-        }
-        return true;
+        return boardGrid[y][x].isEmpty();
     }
 
     public int getWidth() {

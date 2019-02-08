@@ -6,8 +6,8 @@ import java.awt.*;
 public abstract class Square {
 
     private Color color;
-    private BoardPanel parent;
-    private Board board;
+    private final BoardPanel parent;
+    private final Board board;
 
     public Square(BoardPanel parent, Board board) {
         this.parent = parent;

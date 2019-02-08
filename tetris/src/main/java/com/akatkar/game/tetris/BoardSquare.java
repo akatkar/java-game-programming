@@ -1,7 +1,5 @@
 package com.akatkar.game.tetris;
 
-import java.awt.*;
-
 public class BoardSquare extends Square {
     private final int x;
     private final int y;
