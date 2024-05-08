@@ -1,7 +1,7 @@
 package com.akatkar.game.tetris;
 
-import java.awt.*;
-import java.util.Arrays;
+import java.awt.Graphics;
+import java.util.stream.Stream;
 
 class Shape {
 
@@ -20,29 +20,29 @@ class Shape {
     }
 
     private int maxX() {
-        return Arrays.stream(squares)
-                .mapToInt(s -> s.getX())
+        return Stream.of(squares)
+                .mapToInt(PieceSquare::getX)
                 .max()
                 .getAsInt();
     }
 
     private int minX() {
-        return Arrays.stream(squares)
-                .mapToInt(s -> s.getX())
+        return Stream.of(squares)
+                .mapToInt(PieceSquare::getX)
                 .min()
                 .getAsInt();
     }
 
     private int maxY() {
-        return Arrays.stream(squares)
-                .mapToInt(s -> s.getY())
+        return Stream.of(squares)
+                .mapToInt(PieceSquare::getY)
                 .max()
                 .getAsInt();
     }
 
     private int minY() {
-        return Arrays.stream(squares)
-                .mapToInt(s -> s.getY())
+        return Stream.of(squares)
+                .mapToInt(PieceSquare::getY)
                 .min()
                 .getAsInt();
     }

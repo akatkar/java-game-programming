@@ -1,6 +1,7 @@
 package com.akatkar.game.tetris;
 
 import java.awt.*;
+import java.util.stream.Stream;
 
 class Board {
     private final Square[][] boardGrid;
@@ -29,12 +30,8 @@ class Board {
     }
 
     private boolean isRowFull(int row) {
-        for (Square square : boardGrid[row]) {
-            if (square.isEmpty()) {
-                return false;
-            }
-        }
-        return true;
+        return Stream.of(boardGrid[row])
+                .noneMatch(Square::isEmpty);
     }
 
     private void removeRow(int row) {
@@ -82,4 +79,5 @@ class Board {
     public int getHeight() {
         return boardGrid.length;
     }
+
 }

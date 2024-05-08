@@ -11,10 +11,10 @@ import javax.swing.JPanel;
 
 public class BoardPanel extends JPanel {
 
-    private final int BOARD_WIDTH = 10;
-    private final int BOARD_HEIGHT = 22;
-    private final int INITIAL_DELAY = 100;
-    private final int PERIOD_INTERVAL = 300;
+    private static final int BOARD_WIDTH = 10;
+    private static final int BOARD_HEIGHT = 22;
+    private static final int INITIAL_DELAY = 100;
+    private static final int PERIOD_INTERVAL = 300;
 
     private Timer timer;
     private boolean isFallingFinished = false;
@@ -63,7 +63,6 @@ public class BoardPanel extends JPanel {
         super.paintComponent(g);
         doDrawing(g);
     }
-
     private void dropDown() {
         curPiece.dropDown();
         removeFullRows();
@@ -100,11 +99,6 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    private void doGameCycle() {
-        update();
-        repaint();
-    }
-
     private void update() {
         if (isPaused) {
             return;
@@ -139,34 +133,25 @@ public class BoardPanel extends JPanel {
             }
 
             switch (keycode) {
-
-                case KeyEvent.VK_LEFT:
-                    if(curPiece.moveLeft())
+                case KeyEvent.VK_LEFT -> {
+                    if (curPiece.moveLeft())
                         repaint();
-                    break;
-
-                case KeyEvent.VK_RIGHT:
-                    if(curPiece.moveRight())
+                }
+                case KeyEvent.VK_RIGHT -> {
+                    if (curPiece.moveRight())
                         repaint();
-                    break;
-
-                case KeyEvent.VK_DOWN:
+                }
+                case KeyEvent.VK_DOWN -> {
                     curPiece.rotateRight();
                     repaint();
-                    break;
-
-                case KeyEvent.VK_UP:
+                }
+                case KeyEvent.VK_UP -> {
                     curPiece.rotateLeft();
                     repaint();
-                    break;
-
-                case KeyEvent.VK_SPACE:
-                    dropDown();
-                    break;
-
-                case KeyEvent.VK_D:
-                    moveDown();
-                    break;
+                }
+                case KeyEvent.VK_SPACE -> dropDown();
+                case KeyEvent.VK_D -> moveDown();
+                default -> {}
             }
         }
     }
@@ -174,7 +159,8 @@ public class BoardPanel extends JPanel {
     private class ScheduleTask extends TimerTask {
         @Override
         public void run() {
-            doGameCycle();
+            update();
+            repaint();
         }
     }
 }
