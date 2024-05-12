@@ -17,20 +17,4 @@ public class WallSquare extends Square {
         this.y = y;
         board.setSquare(this);
     }
-
-    @Override
-    public String toString() {
-        return "{" + x + ',' + y + '}';
-    }
-
-
-//    @Override
-//    public int getX() {
-//        return x;
-//    }
-//
-//    @Override
-//    public int getY() {
-//        return y;
-//    }
 }

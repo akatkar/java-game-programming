@@ -3,7 +3,7 @@ package com.akatkar.game.snake;
 import java.awt.*;
 import java.util.Random;
 
-public class Feed {
+public class Feed implements FeedEventListener {
     private static final Random random = new Random();
     private final BoardPanel parent;
     private final Board board;
@@ -26,5 +26,10 @@ public class Feed {
 
     private Color getRandomColor() {
         return new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255));
+    }
+
+    @Override
+    public void onEatenEvent() {
+        createFeed();
     }
 }

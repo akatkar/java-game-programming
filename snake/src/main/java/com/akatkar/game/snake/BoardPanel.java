@@ -30,8 +30,8 @@ public class BoardPanel extends JPanel {
         this.setBackground(Color.BLACK);
         statusBar = parent.getStatusBar();
         board = new Board(this, BOARD_WIDTH, BOARD_HEIGHT);
-        snake = new Snake(this, board);
         feed = new Feed(this, board);
+        snake = new Snake(this, board, feed);
         new Wall(this, board, 5, 5, 30, Wall.Type.VERTICAL);
         new Wall(this, board, BOARD_WIDTH-5, 5, 30, Wall.Type.VERTICAL);
         new Wall(this, board, 5, 2, 31, Wall.Type.HORIZANTAL);
@@ -64,10 +64,7 @@ public class BoardPanel extends JPanel {
             return;
         }
         if (snake != null) {
-            boolean hasEaten = snake.moveSnake();
-            if (hasEaten) {
-                feed.createFeed();
-            }
+            snake.moveSnake();
             if (snake.isGameOver()) {
                 statusBar.setText("Game Over");
                 isStarted = false;
