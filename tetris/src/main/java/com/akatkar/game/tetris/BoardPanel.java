@@ -6,13 +6,12 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class BoardPanel extends JPanel {
 
-    private static final int BOARD_WIDTH = 10;
-    private static final int BOARD_HEIGHT = 22;
+    private static final int BOARD_WIDTH = 17;
+    private static final int BOARD_HEIGHT = 34;
     private static final int INITIAL_DELAY = 100;
     private static final int PERIOD_INTERVAL = 300;
 
@@ -20,8 +19,9 @@ public class BoardPanel extends JPanel {
     private boolean isFallingFinished = false;
     private boolean isStarted = false;
     private boolean isPaused = false;
-    private int numRowsRemoved = 0;
-    private JLabel statusbar;
+    private int score = 0;
+    private ScoreBoard scoreBoard;
+    private NextShape nextShape;
     private Shape curPiece;
     private Board board;
 
@@ -34,7 +34,8 @@ public class BoardPanel extends JPanel {
         timer = new Timer();
         timer.scheduleAtFixedRate(new ScheduleTask(), INITIAL_DELAY, PERIOD_INTERVAL);
         this.setBackground(Color.BLACK);
-        statusbar = parent.getStatusBar();
+        scoreBoard = parent.getStatusBar();
+        nextShape = parent.getNextShape();
         board = new Board(this, BOARD_WIDTH, BOARD_HEIGHT);
         addKeyListener(new TAdapter());
     }
@@ -50,19 +51,21 @@ public class BoardPanel extends JPanel {
             return;
         }
         isPaused = !isPaused;
-        statusbar.setText(isPaused ? "paused" : String.valueOf(numRowsRemoved));
     }
 
     private void doDrawing(Graphics g) {
         board.draw(g);
         curPiece.draw(g);
+        nextShape.repaint();
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         doDrawing(g);
+        nextShape.draw();
     }
+
     private void dropDown() {
         curPiece.dropDown();
         removeFullRows();
@@ -81,19 +84,19 @@ public class BoardPanel extends JPanel {
     }
 
     private void newPiece() {
-        curPiece = new Shape(this, board);
+        curPiece = new Shape(this, board, nextShape.getPiece());
         if(!curPiece.moveDown()){
             timer.cancel();
             isStarted = false;
-            statusbar.setText("Game over");
+
         }
     }
 
     private void removeFullRows() {
         int numFullRows = board.removeFullRows();
         if (numFullRows > 0) {
-            numRowsRemoved += numFullRows;
-            statusbar.setText(String.valueOf(numRowsRemoved));
+            score += numFullRows * numFullRows * BOARD_WIDTH;
+            scoreBoard.setValue(score);
             isFallingFinished = true;
             repaint();
         }

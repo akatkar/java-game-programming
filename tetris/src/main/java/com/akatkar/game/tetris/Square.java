@@ -1,15 +1,16 @@
 package com.akatkar.game.tetris;
 
 
+import javax.swing.*;
 import java.awt.*;
 
 public abstract class Square {
 
     private Color color;
-    private final BoardPanel parent;
+    private final JPanel parent;
     private final Board board;
 
-    public Square(BoardPanel parent, Board board) {
+    public Square(JPanel parent, Board board) {
         this.parent = parent;
         this.color = parent.getBackground();
         this.board = board;

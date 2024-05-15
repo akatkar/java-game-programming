@@ -1,5 +1,6 @@
 package com.akatkar.game.tetris;
 
+import javax.swing.*;
 import java.awt.*;
 
 public class PieceSquare extends Square {
@@ -7,7 +8,7 @@ public class PieceSquare extends Square {
     private int x;
     private int y;
 
-    public static PieceSquare[] getSquares(BoardPanel parent, Board board, Piece piece){
+    public static PieceSquare[] getSquares(JPanel parent, Board board, Piece piece){
         PieceSquare[] squares = new PieceSquare[4];
         for (int i = 0; i < squares.length ; i++) {
             squares[i] = new PieceSquare(parent, board, piece, i);
@@ -15,7 +16,7 @@ public class PieceSquare extends Square {
         return squares;
     }
 
-    private PieceSquare(BoardPanel parent, Board board, Piece piece, int count) {
+    private PieceSquare(JPanel parent, Board board, Piece piece, int count) {
         super(parent, board);
         this.x = piece.getCoordinate(count,0);
         this.y = piece.getCoordinate(count,1);

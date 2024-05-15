@@ -1,6 +1,10 @@
 package com.akatkar.game.tetris;
 
+import javax.swing.*;
 import java.awt.Graphics;
+import java.util.function.IntSupplier;
+import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
 class Shape {
@@ -11,9 +15,13 @@ class Shape {
     private int curX;
     private int curY;
 
-    Shape(BoardPanel parent, Board board) {
+    Shape(JPanel parent, Board board) {
+        this(parent, board, Piece.getRandom());
+    }
+
+    Shape(JPanel parent, Board board, Piece piece) {
         this.board  = board;
-        this.piece = Piece.getRandom();
+        this.piece = piece;
         this.squares = PieceSquare.getSquares(parent, board, piece);
         curX = (board.getWidth() / 2);
         curY = -1 - (maxY() - minY()); // start with bottom of shape
@@ -38,6 +46,7 @@ class Shape {
                 .mapToInt(PieceSquare::getY)
                 .max()
                 .getAsInt();
+
     }
 
     private int minY() {

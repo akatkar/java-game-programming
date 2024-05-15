@@ -1,23 +1,25 @@
 package com.akatkar.game.tetris;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+import java.awt.*;
+import javax.swing.*;
 
 public class Tetris extends JFrame {
 
-    private JLabel statusbar;
+    private ScoreBoard scoreBoard;
+    private NextShape nextShape;
 
     public Tetris() {
-
         initUI();
     }
 
     private void initUI() {
 
-        statusbar = new JLabel(" 0");
-        add(statusbar, BorderLayout.SOUTH);
+        scoreBoard = new ScoreBoard();
+        nextShape = new NextShape();
+        NextShapePanel nextShapePanel = new NextShapePanel(nextShape);
+
+        ToolPanel toolPanel = new ToolPanel(nextShapePanel, scoreBoard);
+        add(toolPanel, BorderLayout.NORTH);
 
         BoardPanel board = new BoardPanel(this);
         add(board);
@@ -27,16 +29,43 @@ public class Tetris extends JFrame {
         setSize(400, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setVisible(true);
     }
 
-    public JLabel getStatusBar() {
-        return statusbar;
+    public ScoreBoard getStatusBar() {
+        return scoreBoard;
+    }
+
+    public NextShape getNextShape() {
+        return nextShape;
     }
 
     public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            Tetris game = new Tetris();
-            game.setVisible(true);
-        });
+        EventQueue.invokeLater(Tetris::new);
     }
+
+    private static class ToolPanel extends JPanel {
+        ToolPanel(NextShapePanel nextShapePanel, ScoreBoard scoreBoard) {
+            this.setLayout(new GridLayout(1, 2));
+            this.add(nextShapePanel);
+            this.add(scoreBoard);
+        }
+    }
+
+    private static class NextShapePanel extends JPanel {
+
+        NextShapePanel(NextShape nextShape) {
+            this.setLayout(new GridLayout(1, 3));
+            add(new EmptyPanel());
+            add(nextShape);
+            add(new EmptyPanel());
+        }
+
+        private static class EmptyPanel extends JPanel {
+            public EmptyPanel() {
+                setBackground(Color.BLACK);
+            }
+        }
+    }
+
 }
