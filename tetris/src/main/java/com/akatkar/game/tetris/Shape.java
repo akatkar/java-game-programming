@@ -2,24 +2,19 @@ package com.akatkar.game.tetris;
 
 import javax.swing.*;
 import java.awt.Graphics;
-import java.util.function.IntSupplier;
-import java.util.function.Supplier;
-import java.util.function.ToIntFunction;
 import java.util.stream.Stream;
 
 class Shape {
 
+    private final BoardPanel parent;
     private final Board board;
     private final Piece piece;
     private final PieceSquare[] squares;
     private int curX;
     private int curY;
 
-    Shape(JPanel parent, Board board) {
-        this(parent, board, Piece.getRandom());
-    }
-
     Shape(JPanel parent, Board board, Piece piece) {
+        this.parent = (BoardPanel) parent;
         this.board  = board;
         this.piece = piece;
         this.squares = PieceSquare.getSquares(parent, board, piece);
@@ -117,7 +112,7 @@ class Shape {
         landed();
     }
 
-    boolean tryMove(int newX, int newY){
+     boolean tryMove(int newX, int newY){
         for(Square square : squares){
             int x = newX + square.getX();
             int y = newY + square.getY();
@@ -132,6 +127,10 @@ class Shape {
     void landed(){
         for (PieceSquare square: squares) {
             square.normalizeLocation(curX, curY);
+            if (!board.isValid(square.getX(), square.getY())) {
+                parent.gameOver();
+                return;
+            }
             board.setSquare(square);
         }
     }

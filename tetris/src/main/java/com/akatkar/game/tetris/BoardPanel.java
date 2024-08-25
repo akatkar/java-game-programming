@@ -10,8 +10,8 @@ import javax.swing.JPanel;
 
 public class BoardPanel extends JPanel {
 
-    private static final int BOARD_WIDTH = 17;
-    private static final int BOARD_HEIGHT = 34;
+    private static final int BOARD_WIDTH = 11;
+    private static final int BOARD_HEIGHT = 22;
     private static final int INITIAL_DELAY = 100;
     private static final int PERIOD_INTERVAL = 300;
 
@@ -33,7 +33,7 @@ public class BoardPanel extends JPanel {
         setFocusable(true);
         timer = new Timer();
         timer.scheduleAtFixedRate(new ScheduleTask(), INITIAL_DELAY, PERIOD_INTERVAL);
-        this.setBackground(Color.BLACK);
+        this.setBackground(Color.DARK_GRAY);
         scoreBoard = parent.getStatusBar();
         nextShape = parent.getNextShape();
         board = new Board(this, BOARD_WIDTH, BOARD_HEIGHT);
@@ -83,12 +83,16 @@ public class BoardPanel extends JPanel {
         }
     }
 
+    public void gameOver() {
+        timer.cancel();
+        isStarted = false;
+        System.out.println("GAME OVER");
+    }
+
     private void newPiece() {
         curPiece = new Shape(this, board, nextShape.getPiece());
         if(!curPiece.moveDown()){
-            timer.cancel();
-            isStarted = false;
-
+            gameOver();
         }
     }
 
@@ -117,44 +121,52 @@ public class BoardPanel extends JPanel {
 
     private class TAdapter extends KeyAdapter {
 
+        private boolean isProcessing = false;
+
         @Override
         public void keyPressed(KeyEvent e) {
 
-            if (!isStarted) {
+            if (!isStarted || isProcessing) {
                 return;
             }
 
-            int keycode = e.getKeyCode();
+            try {
+                isProcessing = true;
+                int keycode = e.getKeyCode();
 
-            if (keycode == KeyEvent.VK_P) {
-                pause();
-                return;
-            }
+                if (keycode == KeyEvent.VK_P) {
+                    pause();
+                    return;
+                }
 
-            if (isPaused) {
-                return;
-            }
+                if (isPaused) {
+                    return;
+                }
 
-            switch (keycode) {
-                case KeyEvent.VK_LEFT -> {
-                    if (curPiece.moveLeft())
+                switch (keycode) {
+                    case KeyEvent.VK_LEFT -> {
+                        if (curPiece.moveLeft())
+                            repaint();
+                    }
+                    case KeyEvent.VK_RIGHT -> {
+                        if (curPiece.moveRight())
+                            repaint();
+                    }
+                    case KeyEvent.VK_DOWN -> {
+                        curPiece.rotateRight();
                         repaint();
-                }
-                case KeyEvent.VK_RIGHT -> {
-                    if (curPiece.moveRight())
+                    }
+                    case KeyEvent.VK_UP -> {
+                        curPiece.rotateLeft();
                         repaint();
+                    }
+                    case KeyEvent.VK_SPACE -> dropDown();
+                    case KeyEvent.VK_D -> moveDown();
+                    default -> {
+                    }
                 }
-                case KeyEvent.VK_DOWN -> {
-                    curPiece.rotateRight();
-                    repaint();
-                }
-                case KeyEvent.VK_UP -> {
-                    curPiece.rotateLeft();
-                    repaint();
-                }
-                case KeyEvent.VK_SPACE -> dropDown();
-                case KeyEvent.VK_D -> moveDown();
-                default -> {}
+            } finally {
+                isProcessing = false;
             }
         }
     }
