@@ -4,9 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.Timer;
-import java.util.TimerTask;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 public class BoardPanel extends JPanel {
 
@@ -31,19 +30,27 @@ public class BoardPanel extends JPanel {
 
     private void initBoard(Tetris parent) {
         setFocusable(true);
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new ScheduleTask(), INITIAL_DELAY, PERIOD_INTERVAL);
         this.setBackground(Color.DARK_GRAY);
         scoreBoard = parent.getStatusBar();
         nextShape = parent.getNextShape();
         board = new Board(this, BOARD_WIDTH, BOARD_HEIGHT);
         addKeyListener(new TAdapter());
+        timer = new Timer(PERIOD_INTERVAL, e -> {
+            if (isStarted) {
+                update();
+                repaint();
+            }
+        });
+        timer.setInitialDelay(INITIAL_DELAY);
     }
 
     public void start() {
         isStarted = true;
         board.clear();
         newPiece();
+        if (isStarted) {
+            timer.start();
+        }
     }
 
     private void pause() {
@@ -84,7 +91,7 @@ public class BoardPanel extends JPanel {
     }
 
     public void gameOver() {
-        timer.cancel();
+        timer.stop();
         isStarted = false;
         System.out.println("GAME OVER");
     }
@@ -168,14 +175,6 @@ public class BoardPanel extends JPanel {
             } finally {
                 isProcessing = false;
             }
-        }
-    }
-
-    private class ScheduleTask extends TimerTask {
-        @Override
-        public void run() {
-            update();
-            repaint();
         }
     }
 }

@@ -58,7 +58,9 @@ class Shape {
             }
         }
         if(!tryMove(curX, curY)){
-            rotateRight();
+            for (PieceSquare square: squares) {
+                square.rotateRight();
+            }
         }
     }
 
@@ -69,7 +71,9 @@ class Shape {
             }
         }
         if(!tryMove(curX, curY)){
-            rotateLeft();
+            for (PieceSquare square: squares) {
+                square.rotateLeft();
+            }
         }
     }
 

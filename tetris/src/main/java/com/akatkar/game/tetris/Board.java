@@ -3,8 +3,6 @@ package com.akatkar.game.tetris;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -84,7 +82,7 @@ class Board {
     public void repaint() {
         parent.repaint();
     }
-    private class RowRemover extends TimerTask {
+    private class RowRemover {
         Timer timer;
         List<Color[]> savedSquares;
         List<Integer> fullRows;
@@ -96,8 +94,9 @@ class Board {
             this.savedSquares = fullRows.stream()
                     .map(this::copySquares)
                     .toList();
-            timer = new Timer();
-            timer.scheduleAtFixedRate(this, 10, 100);
+            timer = new Timer(100, e -> runAnimationFrame());
+            timer.setInitialDelay(10);
+            timer.start();
         }
 
         private Color[] copySquares(int row) {
@@ -136,8 +135,7 @@ class Board {
             }
         }
 
-        @Override
-        public void run() {
+        private void runAnimationFrame() {
             if (hideFlag) {
                 hideRows();
             } else {
@@ -148,7 +146,7 @@ class Board {
             count++;
             if (count > 4) {
                 removeRows();
-                timer.cancel();
+                timer.stop();
             }
         }
     }
