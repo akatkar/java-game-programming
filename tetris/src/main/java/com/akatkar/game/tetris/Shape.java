@@ -106,12 +106,10 @@ class Shape {
     }
 
     void dropDown() {
-        int newY = curY;
-        while (newY > 0) {
-            if (!tryMove(curX, newY + 1)) {
+        while (true) {
+            if (!tryMove(curX, curY + 1)) {
                 break;
             }
-            ++newY;
         }
         landed();
     }
@@ -130,11 +128,16 @@ class Shape {
 
     void landed(){
         for (PieceSquare square: squares) {
-            square.normalizeLocation(curX, curY);
-            if (!board.isValid(square.getX(), square.getY())) {
+            int x = curX + square.getX();
+            int y = curY + square.getY();
+            if (!board.isValid(x, y)) {
                 parent.gameOver();
                 return;
             }
+        }
+
+        for (PieceSquare square: squares) {
+            square.normalizeLocation(curX, curY);
             board.setSquare(square);
         }
     }

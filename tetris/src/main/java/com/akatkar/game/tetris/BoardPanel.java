@@ -2,9 +2,12 @@ package com.akatkar.game.tetris;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Window;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 public class BoardPanel extends JPanel {
@@ -45,6 +48,11 @@ public class BoardPanel extends JPanel {
     }
 
     public void start() {
+        timer.stop();
+        isFallingFinished = false;
+        isPaused = false;
+        score = 0;
+        scoreBoard.clear();
         isStarted = true;
         board.clear();
         newPiece();
@@ -75,6 +83,9 @@ public class BoardPanel extends JPanel {
 
     private void dropDown() {
         curPiece.dropDown();
+        if (!isStarted) {
+            return;
+        }
         removeFullRows();
         if (!isFallingFinished) {
             newPiece();
@@ -83,6 +94,9 @@ public class BoardPanel extends JPanel {
 
     private void moveDown() {
         if(!curPiece.moveDown()){
+            if (!isStarted) {
+                return;
+            }
             removeFullRows();
             if (!isFallingFinished) {
                 newPiece();
@@ -91,16 +105,40 @@ public class BoardPanel extends JPanel {
     }
 
     public void gameOver() {
+        if (!isStarted) {
+            return;
+        }
         timer.stop();
         isStarted = false;
-        System.out.println("GAME OVER");
+        repaint();
+        SwingUtilities.invokeLater(this::showGameOverDialog);
+    }
+
+    private void showGameOverDialog() {
+        String[] options = {"Restart", "Quit"};
+        int choice = JOptionPane.showOptionDialog(
+                this,
+                "Your score: " + score,
+                "Game Over",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                options,
+                options[0]);
+
+        if (choice == 0) {
+            start();
+        } else {
+            Window window = SwingUtilities.getWindowAncestor(this);
+            if (window != null) {
+                window.dispose();
+            }
+        }
     }
 
     private void newPiece() {
         curPiece = new Shape(this, board, nextShape.getPiece());
-        if(!curPiece.moveDown()){
-            gameOver();
-        }
+        curPiece.moveDown();
     }
 
     private void removeFullRows() {

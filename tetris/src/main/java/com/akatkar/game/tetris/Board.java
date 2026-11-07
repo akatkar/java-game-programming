@@ -2,6 +2,7 @@ package com.akatkar.game.tetris;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -9,6 +10,7 @@ import java.util.stream.Stream;
 class Board {
     private final Square[][] boardGrid;
     private final JPanel parent;
+    private final List<RowRemover> rowRemovers = new ArrayList<>();
 
     public Board(JPanel parent, int width, int height) {
         this.parent = parent;
@@ -25,6 +27,8 @@ class Board {
     }
 
     public void clear() {
+        new ArrayList<>(rowRemovers).forEach(RowRemover::stop);
+        rowRemovers.clear();
         for (Square[] row : boardGrid) {
             for (Square square : row) {
                 square.clear();
@@ -47,7 +51,7 @@ class Board {
     int removeFullRows() {
         List<Integer> fullRows = findFullRows();
         if (!fullRows.isEmpty()) {
-            new RowRemover(fullRows);
+            rowRemovers.add(new RowRemover(fullRows));
         }
         return fullRows.size();
     }
@@ -146,8 +150,13 @@ class Board {
             count++;
             if (count > 4) {
                 removeRows();
-                timer.stop();
+                stop();
             }
+        }
+
+        private void stop() {
+            timer.stop();
+            rowRemovers.remove(this);
         }
     }
 }
