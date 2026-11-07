@@ -2,15 +2,15 @@ package com.akatkar.game.tetris;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import java.util.Arrays;
 
 class Board {
     private final Square[][] boardGrid;
     private final JPanel parent;
-    private final List<RowRemover> rowRemovers = new ArrayList<>();
+    private Timer rowClearTimer;
+    private boolean[] clearingRows;
+    private boolean hideClearingRows;
+    private int clearAnimationFrames;
 
     public Board(JPanel parent, int width, int height) {
         this.parent = parent;
@@ -27,8 +27,13 @@ class Board {
     }
 
     public void clear() {
-        new ArrayList<>(rowRemovers).forEach(RowRemover::stop);
-        rowRemovers.clear();
+        if (rowClearTimer != null) {
+            rowClearTimer.stop();
+            rowClearTimer = null;
+        }
+        clearingRows = null;
+        hideClearingRows = false;
+        clearAnimationFrames = 0;
         for (Square[] row : boardGrid) {
             for (Square square : row) {
                 square.clear();
@@ -37,29 +42,92 @@ class Board {
     }
 
     private boolean isRowFull(int row) {
-        return Stream.of(boardGrid[row])
-                .noneMatch(Square::isEmpty);
-    }
-
-    private List<Integer> findFullRows() {
-        return IntStream.range(0, boardGrid.length)
-                .filter(this::isRowFull)
-                .boxed()
-                .toList();
+        for (Square square : boardGrid[row]) {
+            if (square.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     int removeFullRows() {
-        List<Integer> fullRows = findFullRows();
-        if (!fullRows.isEmpty()) {
-            rowRemovers.add(new RowRemover(fullRows));
+        if (isClearingRows()) {
+            return 0;
         }
-        return fullRows.size();
+
+        clearingRows = new boolean[getHeight()];
+        int clearedRows = 0;
+        for (int row = 0; row < getHeight(); row++) {
+            if (isRowFull(row)) {
+                clearingRows[row] = true;
+                clearedRows++;
+            }
+        }
+
+        if (clearedRows > 0) {
+            hideClearingRows = false;
+            clearAnimationFrames = 0;
+            rowClearTimer = new Timer(100, event -> animateRowClear());
+            rowClearTimer.setInitialDelay(10);
+            rowClearTimer.start();
+            repaint();
+        } else {
+            clearingRows = null;
+        }
+        return clearedRows;
+    }
+
+    boolean isClearingRows() {
+        return rowClearTimer != null && rowClearTimer.isRunning();
+    }
+
+    private void animateRowClear() {
+        hideClearingRows = !hideClearingRows;
+        clearAnimationFrames++;
+        if (clearAnimationFrames >= 6) {
+            compactRows();
+            rowClearTimer.stop();
+            rowClearTimer = null;
+            clearingRows = null;
+            hideClearingRows = false;
+        }
+        repaint();
+    }
+
+    private void compactRows() {
+        int writeRow = getHeight() - 1;
+        for (int readRow = getHeight() - 1; readRow >= 0; readRow--) {
+            if (clearingRows[readRow]) {
+                continue;
+            }
+
+            if (writeRow != readRow) {
+                for (int x = 0; x < getWidth(); x++) {
+                    Square source = boardGrid[readRow][x];
+                    Square destination = boardGrid[writeRow][x];
+                    if (source.isEmpty()) {
+                        destination.clear();
+                    } else {
+                        destination.setColor(source.getColor());
+                    }
+                }
+            }
+            writeRow--;
+        }
+
+        for (int row = writeRow; row >= 0; row--) {
+            Arrays.stream(boardGrid[row]).forEach(Square::clear);
+        }
     }
 
     public void draw(Graphics g) {
-        for (Square[] row : boardGrid) {
-            for (Square square : row) {
-                square.draw(g);
+        for (int y = 0; y < getHeight(); y++) {
+            for (int x = 0; x < getWidth(); x++) {
+                Square square = boardGrid[y][x];
+                boolean rowIsBlinking = clearingRows != null && clearingRows[y];
+                if (!square.isEmpty() && !(rowIsBlinking && hideClearingRows)) {
+                    square.draw(g);
+                }
             }
         }
     }
@@ -85,78 +153,5 @@ class Board {
 
     public void repaint() {
         parent.repaint();
-    }
-    private class RowRemover {
-        Timer timer;
-        List<Color[]> savedSquares;
-        List<Integer> fullRows;
-
-        boolean hideFlag = false;
-        int count = 0;
-        public RowRemover(List<Integer> fullRows) {
-            this.fullRows = fullRows;
-            this.savedSquares = fullRows.stream()
-                    .map(this::copySquares)
-                    .toList();
-            timer = new Timer(100, e -> runAnimationFrame());
-            timer.setInitialDelay(10);
-            timer.start();
-        }
-
-        private Color[] copySquares(int row) {
-            Color[] squares = new Color[getWidth()];
-            for (int x = 0; x < squares.length; x++) {
-                squares[x] = boardGrid[row][x].getColor();
-            }
-            return squares;
-        }
-
-        private void hideRows() {
-            for (int row : fullRows) {
-                for (int x = 0; x < getWidth(); x++) {
-                    boardGrid[row][x].setColor(Color.BLACK);
-                }
-            }
-        }
-
-        private void drawRows() {
-            for (int i = 0; i < fullRows.size(); i++) {
-                int row = fullRows.get(i);
-                Color[] temp = savedSquares.get(i);
-                for (int x = 0; x < getWidth(); x++) {
-                    boardGrid[row][x].setColor(temp[x]);
-                }
-            }
-        }
-
-        private void removeRows() {
-            for (int row : fullRows) {
-                for (int y = row; y > 0; y--) {
-                    for (int x = 0; x < getWidth(); x++) {
-                        boardGrid[y][x].setColor(boardGrid[y - 1][x].getColor());
-                    }
-                }
-            }
-        }
-
-        private void runAnimationFrame() {
-            if (hideFlag) {
-                hideRows();
-            } else {
-                drawRows();
-            }
-            hideFlag = !hideFlag;
-            repaint();
-            count++;
-            if (count > 4) {
-                removeRows();
-                stop();
-            }
-        }
-
-        private void stop() {
-            timer.stop();
-            rowRemovers.remove(this);
-        }
     }
 }

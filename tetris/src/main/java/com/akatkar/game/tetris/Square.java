@@ -8,12 +8,10 @@ public abstract class Square {
 
     private Color color;
     private final JPanel parent;
-    private final Board board;
 
     public Square(JPanel parent, Board board) {
         this.parent = parent;
         this.color = parent.getBackground();
-        this.board = board;
     }
 
     public void clear(){
@@ -31,14 +29,6 @@ public abstract class Square {
     public boolean isEmpty() {
         return color.equals(parent.getBackground());
     }
-    private int squareWidth() {
-        return (int) parent.getSize().getWidth() / board.getWidth();
-    }
-
-    private int squareHeight() {
-        return (int) parent.getSize().getHeight() / board.getHeight();
-    }
-
     public abstract int getX();
 
     public abstract int getY();
@@ -48,21 +38,19 @@ public abstract class Square {
     }
 
     public void draw(Graphics g, int x, int y) {
-        Dimension size = parent.getSize();
-        int boardTop = (int) size.getHeight() - board.getHeight() * squareHeight();
+        drawCell(g, x * GameStyle.CELL_SIZE, y * GameStyle.CELL_SIZE, GameStyle.CELL_SIZE, color);
+    }
 
+    static void drawCell(Graphics g, int x, int y, int cellSize, Color color) {
         g.setColor(color);
-        int rx = x * squareWidth();
-        int ry = boardTop + y * squareHeight();
-
-        g.fillRect(rx + 1, ry + 1, squareWidth() - 2, squareHeight() - 2);
+        g.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
 
         g.setColor(color.brighter());
-        g.drawLine(rx, ry + squareHeight() - 1, rx, ry);
-        g.drawLine(rx, ry, rx + squareWidth() - 1, ry);
+        g.drawLine(x, y + cellSize - 1, x, y);
+        g.drawLine(x, y, x + cellSize - 1, y);
 
         g.setColor(color.darker());
-        g.drawLine(rx + 1, ry + squareHeight() - 1,rx + squareWidth() - 1, ry + squareHeight() - 1);
-        g.drawLine(rx + squareWidth() - 1, ry + squareHeight()- 1,rx + squareWidth() - 1, ry + 1);
+        g.drawLine(x + 1, y + cellSize - 1, x + cellSize - 1, y + cellSize - 1);
+        g.drawLine(x + cellSize - 1, y + cellSize - 1, x + cellSize - 1, y + 1);
     }
 }

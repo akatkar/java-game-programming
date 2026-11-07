@@ -19,7 +19,7 @@ class Shape {
         this.piece = piece;
         this.squares = PieceSquare.getSquares(parent, board, piece);
         curX = (board.getWidth() / 2);
-        curY = -1 - (maxY() - minY()); // start with bottom of shape
+        curY = -1 - minY();
     }
 
     private int maxX() {
@@ -34,14 +34,6 @@ class Shape {
                 .mapToInt(PieceSquare::getX)
                 .min()
                 .getAsInt();
-    }
-
-    private int maxY() {
-        return Stream.of(squares)
-                .mapToInt(PieceSquare::getY)
-                .max()
-                .getAsInt();
-
     }
 
     private int minY() {
@@ -118,7 +110,10 @@ class Shape {
         for(Square square : squares){
             int x = newX + square.getX();
             int y = newY + square.getY();
-            if( y > 0 && !board.isValid(x, y))
+            if (x < 0 || x >= board.getWidth() || y >= board.getHeight()) {
+                return false;
+            }
+            if (y >= 0 && !board.isValid(x, y))
                 return false;
         }
         curX = newX;

@@ -8,19 +8,23 @@ class NextShape extends JPanel {
     private final Board board;
     private Piece piece;
     private PieceSquare[] squares;
-    private int x;
-    private int y;
 
     NextShape() {
-        this.setBackground(Color.BLACK);
+        setBackground(GameStyle.CARD_BACKGROUND);
+        setPreferredSize(new Dimension(GameStyle.CELL_SIZE * 5, GameStyle.CELL_SIZE * 5));
         board = new Board(this, 5, 5);
         newPiece();
     }
 
     private void doDrawing(Graphics g) {
-        board.draw(g);
+        int cellSize = Math.max(1, Math.min(getWidth(), getHeight()) / 5);
+        int pieceX = (getWidth() - piece.getWidth() * cellSize) / 2;
+        int pieceY = (getHeight() - piece.getHeight() * cellSize) / 2;
+
         for (PieceSquare square: squares) {
-            square.draw(g, x, y);
+            int squareX = pieceX + (square.getX() - piece.getMinX()) * cellSize;
+            int squareY = pieceY + (square.getY() - piece.getMinY()) * cellSize;
+            Square.drawCell(g, squareX, squareY, cellSize, square.getColor());
         }
     }
 
@@ -30,15 +34,9 @@ class NextShape extends JPanel {
         doDrawing(g);
     }
 
-    public void draw() {
-        repaint();
-    }
-
     private void newPiece() {
         this.piece = Piece.getRandom();
         this.squares = PieceSquare.getSquares(this, board, piece);
-        this.x = (5 - piece.getWidth())/2 - piece.getMinX();
-        this.y = (5 - piece.getHeight())/2 - piece.getMinY();
     }
 
     public Piece getPiece() {
