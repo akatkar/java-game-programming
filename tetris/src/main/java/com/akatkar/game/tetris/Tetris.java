@@ -2,6 +2,7 @@ package com.akatkar.game.tetris;
 
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 public class Tetris extends JFrame {
 
@@ -22,7 +23,8 @@ public class Tetris extends JFrame {
         add(toolPanel, BorderLayout.NORTH);
 
         BoardPanel board = new BoardPanel(this);
-        add(board);
+        add(board, BorderLayout.CENTER);
+        add(createStatusBar(), BorderLayout.SOUTH);
         board.start();
 
         setTitle("Tetris");
@@ -38,6 +40,20 @@ public class Tetris extends JFrame {
 
     public NextShape getNextShape() {
         return nextShape;
+    }
+
+    private JPanel createStatusBar() {
+        JPanel statusBar = new JPanel(new BorderLayout());
+        statusBar.setBackground(Color.BLACK);
+        statusBar.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY),
+                new EmptyBorder(6, 8, 6, 8)));
+
+        JLabel controls = new JLabel("← / → Move    ↑ / ↓ Rotate    SPACE Drop    D Soft drop    P Pause");
+        controls.setForeground(Color.LIGHT_GRAY);
+        controls.setHorizontalAlignment(SwingConstants.CENTER);
+        statusBar.add(controls, BorderLayout.CENTER);
+        return statusBar;
     }
 
     public static void main(String[] args) {
